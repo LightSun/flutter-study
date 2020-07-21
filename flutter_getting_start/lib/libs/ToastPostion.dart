@@ -32,9 +32,9 @@ class Toast {
   // 上下边距
   static double _pdVertical;
   static void toast(
-    BuildContext context, {
+    BuildContext context,
     //显示的文本
-    String msg,
+    String msg, {
     //显示的时间 单位毫秒
     int showTime = 1000,
     //显示的背景

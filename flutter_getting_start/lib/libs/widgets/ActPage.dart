@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_getting_start/libs/toast.dart';
+import 'package:flutter_getting_start/main.dart';
 
 void main() {
   runApp(_App());
@@ -98,7 +99,7 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
           children: tabs.map((Choice choice) {
             return new Padding(
                 padding: const EdgeInsets.all(15.0),
-                child: createTabWidget(choice.position));
+                child: _createTabWidget(choice.position));
           }).toList(),
           controller: mTabController,
         ),
@@ -106,7 +107,21 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget createTabWidget(int pos) {
+  Widget _buildListWidget(BuildContext context, int index){
+     return GestureDetector(
+       child: _buildItemWidget(context, index),
+       onTap: (){
+         //Widget Function(BuildContext context)
+         if(index == 0) {
+           Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
+                 return new MyApp();
+             })
+           );
+         }
+    },
+    );
+  }
+  Widget _createTabWidget(int pos) {
     switch (pos) {
       case 0:
         return new Container(
@@ -167,17 +182,6 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
         );
     }
   }
-  Widget _buildListWidget(BuildContext context, int index){
-     return Column(
-        children: <Widget>[
-          Text(
-              items[index].title
-          ),
-          Image.network("https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1946244045,749707381&fm=26&gp=0.jpg")
-        ],
-     );
-  }
-
   @override
   void initState() {
     super.initState();
@@ -204,6 +208,44 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
         });
       }
     });
+  }
+
+  Widget _buildItemWidget(BuildContext context, int index){
+      switch(index){
+
+        case 0:
+          return Column(
+            children: <Widget>[
+              Text(
+                  items[index].title
+              ),
+              Image.network("https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1946244045,749707381&fm=26&gp=0.jpg", scale: 2,)
+            ],
+          );
+
+        case 1:
+          return Column(
+            children: <Widget>[
+              TextField(  //like android ->editText
+                  onChanged: (String str){
+                     Toast.toast(context, "TextField changed: $str");
+                  },
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.all(10.0),
+                icon: Icon(Icons.text_fields),
+                labelText: '请输入你的姓名)',
+                helperText: '请输入你的真实姓名',
+              ),
+              ),
+              Image.network("https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1946244045,749707381&fm=26&gp=0.jpg", scale: 2,)
+            ],
+          );
+
+        default:
+          return Text(
+              items[index].title
+          );
+      }
   }
 
   @override

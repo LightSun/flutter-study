@@ -65,7 +65,8 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
   void _onClickBack(BuildContext context){
-      Toast.toast(context, msg: "back is clicked");
+      Toast.toast(context, "back is clicked");
+      Navigator.pop(context);
   }
 
   @override
