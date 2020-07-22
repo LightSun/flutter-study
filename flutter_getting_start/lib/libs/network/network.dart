@@ -59,29 +59,33 @@ class Code {
 
 class NetworkComponent{
 
-  Options _options;
+  static Options _options;
+  static Dio _dio;
+
+  static Dio get dio => _dio ??= new Dio();
+  static Options get options =>
+      _options ??= new Options(
+        baseUrl: ServerConfig.BASE_URL,
+        //headers: Config.common_headers,
+        connectTimeout: 40000,
+        receiveTimeout: 40000,
+        followRedirects: true,);
+
   ///the data from json.
   dynamic data;
 
   NetworkComponent({data}){
     this.data = data;
-    _options = new Options(
-      baseUrl: ServerConfig.BASE_URL,
-      //headers: Config.common_headers,
-      connectTimeout: 40000,
-      receiveTimeout: 40000,
-      followRedirects: true,
-    );
   }
 
   Future<ResultData> get(String path, Map<String, dynamic> params, {Map<String, dynamic> extraHeaders}) async {
-    Options ops = _options.merge(method: "GET");
+    Options ops = options.merge(method: "GET");
     return _request(path, params, ops,
         extraHeaders: extraHeaders
     );
   }
   Future<ResultData> post(String path, Map<String, dynamic> params, {Map<String, dynamic> extraHeaders}) async {
-    Options ops = _options.merge(method: "POST", contentType: ContentType.text);
+    Options ops = options.merge(method: "POST", contentType: ContentType.text);
     return _request(path, _param2String(params), ops,
         extraHeaders: extraHeaders
     );
@@ -89,7 +93,7 @@ class NetworkComponent{
 
   Future<ResultData> postBody(String path, Map<String, dynamic> params, {Map<String, dynamic> extraHeaders}) async {
   //  "Content-Type: application/json", "Accept: application/json"
-    Options ops = _options.merge(method: "POST", contentType: ContentType.json);
+    Options ops = options.merge(method: "POST", contentType: ContentType.json);
     return _request(path, params, ops,
         extraHeaders: extraHeaders); //jsonEncode(params)
   }
@@ -139,7 +143,6 @@ class NetworkComponent{
       option.headers.addAll(extraHeaders);
     }
 
-    Dio dio = new Dio();
     // interceptor
     if (Config.DEBUG) {
       print("\n================== 请求数据 ==========================");

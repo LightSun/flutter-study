@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_getting_start/libs/network/network.dart';
 
 import 'package:flutter_getting_start/libs/toast.dart';
+import 'package:flutter_getting_start/libs/widgets/PullToRefresh.dart';
 import 'package:flutter_getting_start/main.dart';
+
+import '../UserInfo.dart';
 
 void main() {
   runApp(_App());
@@ -137,11 +140,16 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
           map["loginType"] = 0; // o is code . 1 is pwd
           map["smsCode"] = '0408';
 
-          NetworkComponent(data:"").postBody("v1/user/login", map).then((value)
+          NetworkComponent().postBody("v1/user/login", map).then((value)
           {
             print(value.data);
             print(value.getCodeString());
           });
+        }else if(index == 3){
+          print("start PullToRrFreshApp");
+          Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
+            return new PullToRrFreshApp();
+          }));
         }
       },
     );
@@ -221,9 +229,9 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
     tabs.add(Choice(title: '测试3', icon: Icons.fiber_new, position: 4));
 
     items.add(Choice(title: 'test bases', icon: Icons.hot_tub, position: 0));
-    items.add(Choice(title: 'test network', icon: Icons.network_cell, position: 1));
-    items.add(Choice(title: 'wait 2', icon: Icons.headset_mic, position: 2));
-    items.add(Choice(title: 'wait 3', icon: Icons.headset_off, position: 3));
+    items.add(Choice(title: 'test network get', icon: Icons.network_cell, position: 1));
+    items.add(Choice(title: 'test network post', icon: Icons.network_cell, position: 2));
+    items.add(Choice(title: 'test pullToRefresh', icon: Icons.headset_off, position: 3));
     items.add(Choice(title: 'wait 4', icon: Icons.hearing, position: 4));
 
     mTabController = new TabController(vsync: this, length: tabs.length);
@@ -274,6 +282,16 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
         );
 
       default:
+        return Column(
+          children: <Widget>[
+            Text(
+            items[index].title
+            ),
+            Image.network(
+              "https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1946244045,749707381&fm=26&gp=0.jpg",
+              scale: 2,)
+          ],
+        );
         return Text(
             items[index].title
         );

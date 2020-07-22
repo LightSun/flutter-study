@@ -16,7 +16,7 @@ class HttpBaseResult {
     if(val is String){
       data = val;
     }
-  }
+   }
 }
 
 abstract class DataRes {
