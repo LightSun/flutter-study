@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_getting_start/libs/network/network.dart';
 
 import 'package:flutter_getting_start/libs/toast.dart';
 import 'package:flutter_getting_start/main.dart';
@@ -44,6 +45,7 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
   List<Choice> tabs = [];
   TabController mTabController;
   int mCurrentPosition = 0;
+
   //list items
   List<Choice> items = new List<Choice>();
 
@@ -107,52 +109,76 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _buildListWidget(BuildContext context, int index){
-     return GestureDetector(
-       child: _buildItemWidget(context, index),
-       onTap: (){
-         //Widget Function(BuildContext context)
-         if(index == 0) {
-           Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
-                 return new MyApp();
-             })
-           );
-         }
-    },
+  Widget _buildListWidget(BuildContext context, int index) {
+    return GestureDetector(
+      child: _buildItemWidget(context, index),
+      onTap: () {
+        //Widget Function(BuildContext context)
+        if (index == 0) {
+          print("start test post".runtimeType.toString());
+          Navigator.push(
+              context, MaterialPageRoute(builder: (BuildContext context) {
+            return new MyApp();
+          })
+          );
+        } else if (index == 1) {
+          //network
+          print("start test Get");
+          NetworkComponent().get("http://www.baidu.com", {}).then((value) =>
+          {
+          });
+        }else if (index == 2) {
+          //network
+          print("start test post");
+          Map<String, dynamic> map = Map();
+          map["deviceId"] = "unknown";
+          map["deviceType"] = "android";
+          map["phone"] = "12011111116";
+          map["loginType"] = 0; // o is code . 1 is pwd
+          map["smsCode"] = '0408';
+
+          NetworkComponent(data:"").postBody("v1/user/login", map).then((value)
+          {
+            print(value.data);
+            print(value.getCodeString());
+          });
+        }
+      },
     );
   }
+
   Widget _createTabWidget(int pos) {
     switch (pos) {
       case 0:
         return new Container(
             child: new ListView(
-          children: <Widget>[
-            new ListTile(
-              leading: new Icon(Icons.map),
-              title: new Text('Map'),
-            ),
-            new ListTile(
-              leading: new Icon(Icons.photo),
-              title: new Text('Album'),
-            ),
-            new ListTile(
-              leading: new Icon(Icons.phone),
-              title: new Text('Phone'),
-            ),
-            new ListTile(
-              leading: new Icon(Icons.map),
-              title: new Text('Map'),
-            ),
-            new ListTile(
-              leading: new Icon(Icons.photo),
-              title: new Text('Album'),
-            ),
-            new ListTile(
-              leading: new Icon(Icons.phone),
-              title: new Text('Phone'),
-            ),
-          ],
-        ));
+              children: <Widget>[
+                new ListTile(
+                  leading: new Icon(Icons.map),
+                  title: new Text('Map'),
+                ),
+                new ListTile(
+                  leading: new Icon(Icons.photo),
+                  title: new Text('Album'),
+                ),
+                new ListTile(
+                  leading: new Icon(Icons.phone),
+                  title: new Text('Phone'),
+                ),
+                new ListTile(
+                  leading: new Icon(Icons.map),
+                  title: new Text('Map'),
+                ),
+                new ListTile(
+                  leading: new Icon(Icons.photo),
+                  title: new Text('Album'),
+                ),
+                new ListTile(
+                  leading: new Icon(Icons.phone),
+                  title: new Text('Phone'),
+                ),
+              ],
+            ));
 
       case 1:
         return Container(
@@ -162,7 +188,9 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
                 leading: new Icon(Icons.phone),
                 title: GestureDetector(
                   child: Text("test bases"),
-                  onTap: () {},
+                  onTap: () {
+
+                  },
                 ),
               )
             ],
@@ -182,6 +210,7 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
         );
     }
   }
+
   @override
   void initState() {
     super.initState();
@@ -192,7 +221,7 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
     tabs.add(Choice(title: '测试3', icon: Icons.fiber_new, position: 4));
 
     items.add(Choice(title: 'test bases', icon: Icons.hot_tub, position: 0));
-    items.add(Choice(title: 'wait 1', icon: Icons.help, position: 1));
+    items.add(Choice(title: 'test network', icon: Icons.network_cell, position: 1));
     items.add(Choice(title: 'wait 2', icon: Icons.headset_mic, position: 2));
     items.add(Choice(title: 'wait 3', icon: Icons.headset_off, position: 3));
     items.add(Choice(title: 'wait 4', icon: Icons.hearing, position: 4));
@@ -210,42 +239,45 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
     });
   }
 
-  Widget _buildItemWidget(BuildContext context, int index){
-      switch(index){
+  Widget _buildItemWidget(BuildContext context, int index) {
+    switch (index) {
+      case 0:
+        return Column(
+          children: <Widget>[
+            Text(
+                items[index].title
+            ),
+            Image.network(
+              "https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1946244045,749707381&fm=26&gp=0.jpg",
+              scale: 2,)
+          ],
+        );
 
-        case 0:
-          return Column(
-            children: <Widget>[
-              Text(
-                  items[index].title
-              ),
-              Image.network("https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1946244045,749707381&fm=26&gp=0.jpg", scale: 2,)
-            ],
-          );
-
-        case 1:
-          return Column(
-            children: <Widget>[
-              TextField(  //like android ->editText
-                  onChanged: (String str){
-                     Toast.toast(context, "TextField changed: $str");
-                  },
+      case 1:
+        return Column(
+          children: <Widget>[
+            TextField( //like android ->editText
+              onChanged: (String str) {
+                Toast.toast(context, "TextField changed: $str");
+              },
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.all(10.0),
                 icon: Icon(Icons.text_fields),
                 labelText: '请输入你的姓名)',
                 helperText: '请输入你的真实姓名',
               ),
-              ),
-              Image.network("https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1946244045,749707381&fm=26&gp=0.jpg", scale: 2,)
-            ],
-          );
+            ),
+            Image.network(
+              "https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1946244045,749707381&fm=26&gp=0.jpg",
+              scale: 2,)
+          ],
+        );
 
-        default:
-          return Text(
-              items[index].title
-          );
-      }
+      default:
+        return Text(
+            items[index].title
+        );
+    }
   }
 
   @override
