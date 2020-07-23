@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_getting_start/libs/network/network.dart';
 
 import 'package:flutter_getting_start/libs/toast.dart';
-import 'package:flutter_getting_start/libs/widgets/PullToRefresh.dart';
+import 'package:flutter_getting_start/libs/widgets/PullToRefresh_demo.dart';
 import 'package:flutter_getting_start/main.dart';
 
 import '../UserInfo.dart';
