@@ -6,6 +6,7 @@ import 'package:flutter_getting_start/libs/widgets/PullToRefresh_demo.dart';
 import 'package:flutter_getting_start/main.dart';
 
 import '../UserInfo.dart';
+import 'base_window_demos.dart';
 
 void main() {
   runApp(_App());
@@ -150,6 +151,11 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
           Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
             return new PullToRrFreshApp();
           }));
+        }else if(index == 4){
+          print("start BaseWindow");
+          Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
+            return new BaseWindowDemoApps();
+          }));
         }
       },
     );
@@ -232,7 +238,7 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
     items.add(Choice(title: 'test network get', icon: Icons.network_cell, position: 1));
     items.add(Choice(title: 'test network post', icon: Icons.network_cell, position: 2));
     items.add(Choice(title: 'test pullToRefresh', icon: Icons.headset_off, position: 3));
-    items.add(Choice(title: 'wait 4', icon: Icons.hearing, position: 4));
+    items.add(Choice(title: 'test BaseWindow', icon: Icons.wallpaper, position: 4));
 
     mTabController = new TabController(vsync: this, length: tabs.length);
     //判断TabBar是否切换
