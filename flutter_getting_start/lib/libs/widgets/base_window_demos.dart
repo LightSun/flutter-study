@@ -43,6 +43,9 @@ class _HomeState extends State<HomeDemo> with TickerProviderStateMixin  {
 
   Window _toastWindow;
   Window _loadingWindow;
+  Window _anchorBottomWindow;
+
+  GlobalKey _anchorKey = GlobalKey();
 
   @override
   void initState() {
@@ -93,6 +96,7 @@ class _HomeState extends State<HomeDemo> with TickerProviderStateMixin  {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
+        widthFactor: 10,
         child: ListView(
           children: <Widget>[
             ListTile(title: Text("Toast"),
@@ -102,7 +106,22 @@ class _HomeState extends State<HomeDemo> with TickerProviderStateMixin  {
             ListTile(title: Text("LoadingDialog"),
                 onTap: () {
                   _loadingWindow.toggleShow(context);
-                })
+                }),
+            Container(
+                alignment: Alignment.center,
+                width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.all(80),
+                child: ListTile(
+                    key: _anchorKey,
+                    title: Text("Anchor window-bottom"),
+                    onTap: () {
+                      if(_anchorBottomWindow == null){
+                        _anchorBottomWindow = Window.ofAnchor(context, _anchorKey,
+                            _buildToastImpl(context));
+                      }
+                      _anchorBottomWindow.toggleShow(context);
+                    })
+            )
           ],
         ),
       ),

@@ -10,7 +10,7 @@ class _PendingAction{
   OverlayEntry above;
 }
 ///the pending work mode for show.
-enum PendingWorkMode{
+enum WorkMode{
   /// when show is called, but window is pending. this request will be dropped.
   DROP,
   /// hen show is called, but window is pending. this request will cause dismiss and then continue show.
@@ -27,7 +27,7 @@ class BaseWindow {
   final DismissDelegate _dismissDelegate;
   bool _pending = false;
 
-  PendingWorkMode _mode;
+  WorkMode _mode;
   _PendingAction _pendingAction;
 
   OverlayEntry get overlayEntry => _overlayEntry;
@@ -46,7 +46,7 @@ class BaseWindow {
   /// eg: animation. you should return a [Future].
   ///
   factory BaseWindow.of(BuildContext context, Widget child,
-      {PendingWorkMode mode = PendingWorkMode.DISMISS_BEFORE,
+      { WorkMode mode = WorkMode.DISMISS_BEFORE,
         double top = 0.0,
         showCallback,
         dismissDelegate}) {
@@ -60,7 +60,7 @@ class BaseWindow {
                   width: MediaQuery.of(context).size.width,
                   child: child),
             ) :
-        OverlayEntry(builder: (BuildContext context) => child)
+        child
     );
     return BaseWindow._(context, entry, showCallback, dismissDelegate, mode);
   }
@@ -74,10 +74,10 @@ class BaseWindow {
     assert(!isDisposed());
     if(_pending){
       switch(_mode){
-        case PendingWorkMode.DROP:
+        case WorkMode.DROP:
           return;
 
-        case PendingWorkMode.DISMISS_BEFORE:
+        case WorkMode.DISMISS_BEFORE:
           _pendingAction = new _PendingAction()
             ..showTimeMsec = showTimeMsec
             ..below = below
@@ -86,7 +86,7 @@ class BaseWindow {
           _dismissImpl();
           return;
 
-        case PendingWorkMode.DISMISS_DELEGATE_BEFORE:
+        case WorkMode.DISMISS_DELEGATE_BEFORE:
           _pendingAction = new _PendingAction()
             ..showTimeMsec = showTimeMsec
             ..below = below
@@ -177,6 +177,10 @@ class BaseWindow {
 
 typedef WindowCreator = BaseWindow Function(BuildContext context);
 
+enum RelativePosition{
+    LEFT, TOP, RIGHT, BOTTOM
+}
+
 class Window {
   final WindowCreator _creator;
 
@@ -201,9 +205,9 @@ class Window {
     }
   }
 
-  void dismiss() {
+  void dismiss({bool useDelegate = true}) {
     if (_window != null) {
-      _window.dismiss();
+      _window.dismiss(useDelegate: useDelegate);
     }
   }
 
@@ -216,5 +220,112 @@ class Window {
     } else {
       baseWindow(context).show(showTimeMsec: showTimeMsec, below: below,above: above);
     }
+  }
+
+  factory Window.ofAnchor(BuildContext context, GlobalKey anchor, Widget child,
+      { RelativePosition showPos = RelativePosition.BOTTOM,
+        double offsetX = 0.0, //distance
+        double offsetY = 0.0, //distance
+
+        WorkMode mode = WorkMode.DISMISS_BEFORE,
+        showCallback,
+        dismissDelegate
+      }){
+   // BaseWindow bw = baseWindow(context);
+    RenderBox renderBox = anchor.currentContext.findRenderObject();
+    Offset topOffset = renderBox.localToGlobal(Offset.zero);
+    Offset bottomOffset = renderBox.localToGlobal(Offset(renderBox.size.width, renderBox.size.height));
+    double left = topOffset.dx;
+    double top = topOffset.dy;
+    double bottom = bottomOffset.dy;
+    double right = bottomOffset.dx;
+    print("left = $left, top =$top, right = $right, bottom = $bottom");
+    //compute the best left.
+    Size screenSize = MediaQuery.of(context).size;
+    double rightSpace = screenSize.width - right;
+    double bottomSpace = screenSize.height - bottom;
+
+    Widget realChild;
+
+    double rTopPos, rLeftPos, rRightPos, rBottomPos;
+    Alignment align;
+    switch(showPos){
+      case RelativePosition.BOTTOM:
+        rTopPos = bottom + offsetY;
+        //make widget align center by anchor
+        if(left > rightSpace){
+          rLeftPos = (left - rightSpace) ;
+
+          realChild = Positioned(
+            top: rTopPos,
+            left: rLeftPos,
+            child: Container(
+                alignment: Alignment.topCenter,
+                child: child),
+          );
+        }else{
+          rRightPos = right + left;
+          //TODO bug .wait fix
+          print("rRightPos = $rRightPos");
+          realChild = Positioned(
+            top: rTopPos,
+            right: rRightPos,
+            child: Container(
+                alignment: Alignment.topCenter,
+                child: child),
+          );
+        }
+        break;
+
+      case RelativePosition.TOP:
+        align = Alignment.bottomCenter;
+        rBottomPos = top - offsetY;
+        rLeftPos = left > rightSpace ? (left - rightSpace) : 0 ;
+
+        realChild = Positioned(
+          bottom: rBottomPos,
+          left: rLeftPos,
+          child: Container(
+              alignment: align,
+              child: child),
+        );
+        break;
+
+      case RelativePosition.LEFT:
+        rRightPos = left - offsetX;
+        rTopPos = top > bottomSpace ? top - bottomSpace : 0;
+        align = Alignment.centerRight;
+
+        realChild = Positioned(
+          right: rRightPos,
+          top: rTopPos,
+          child: Container(
+              alignment: align,
+              child: child),
+        );
+        break;
+
+      case RelativePosition.RIGHT:
+        rLeftPos = right + offsetX;
+        rTopPos = top > bottomSpace ? top - bottomSpace : 0;
+        align = Alignment.centerLeft;
+
+        realChild = Positioned(
+          left: rLeftPos,
+          top: rTopPos,
+          child: Container(
+              alignment: align,
+              child: child),
+        );
+        break;
+
+      default:
+        throw new Exception("wrong position = $showPos");
+    }
+    return Window((context) => BaseWindow.of(context, realChild,
+        top: -1.0,
+        mode: mode,
+        showCallback: showCallback,
+        dismissDelegate: dismissDelegate));
   }
 }
