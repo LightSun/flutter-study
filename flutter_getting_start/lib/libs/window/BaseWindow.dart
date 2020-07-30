@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 
 typedef ShowCallback = Future Function(bool);
 typedef DismissDelegate = Future Function();
-//typedef VoidCallback = void Function();
 
 class _PendingAction{
   int showTimeMsec = -1;
@@ -123,12 +122,15 @@ class BaseWindow {
     }
   }
 
+  /// markNeedsBuild
   void markNeedsBuild() {
     if (_overlayEntry != null) {
       _overlayEntry.markNeedsBuild();
     }
   }
 
+  /// dismiss base window
+  /// * useDelegate: use dismiss delegate or not
   void dismiss({bool useDelegate = true}) {
     if (_showing) {
       _showing = false;
@@ -180,7 +182,7 @@ typedef WindowCreator = BaseWindow Function(BuildContext context);
 enum RelativePosition{
     LEFT, TOP, RIGHT, BOTTOM
 }
-
+/// the window wrapper for [BaseWindow]
 class Window {
   final WindowCreator _creator;
   BaseWindow _window;
