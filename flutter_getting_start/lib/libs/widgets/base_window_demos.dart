@@ -46,6 +46,13 @@ class _HomeState extends State<HomeDemo> with TickerProviderStateMixin  {
   Window _anchorBottomWindow;
 
   GlobalKey _anchorKey = GlobalKey();
+  GlobalKey _anchorKey2 = GlobalKey();
+  GlobalKey _anchorKey3 = GlobalKey();
+  GlobalKey _anchorKey4 = GlobalKey();
+  GlobalKey _anchorKey5 = GlobalKey();
+  GlobalKey _anchorKey6 = GlobalKey();
+  GlobalKey _anchorKey7 = GlobalKey();
+  GlobalKey _anchorKey8 = GlobalKey();
 
   @override
   void initState() {
@@ -108,19 +115,126 @@ class _HomeState extends State<HomeDemo> with TickerProviderStateMixin  {
                   _loadingWindow.toggleShow(context);
                 }),
             Container(
-                alignment: Alignment.center,
-                width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.all(80),
+                color: Colors.deepOrangeAccent,
+                margin: EdgeInsets.fromLTRB(100, 0, 100, 0),
+                child: ListTile(
+                    key: _anchorKey8,
+                    title: Text("Anchor window-right"),
+                    onTap: () {
+                      if(_anchorBottomWindow == null){
+                        _anchorBottomWindow = Window.ofAnchor(context, _anchorKey8,
+                            _buildToastImpl(context, text: "Text")
+                            , showPos: RelativePosition.RIGHT);
+                      }
+                      _anchorBottomWindow.toggleShow(context);
+                    })
+            ),
+            Container(
+                color: Colors.blue,
+                margin: EdgeInsets.fromLTRB(100, 0, 100, 0),
+                child: ListTile(
+                    key: _anchorKey6,
+                    title: Text("Anchor window-left"),
+                    onTap: () {
+                      if(_anchorBottomWindow == null){
+                        _anchorBottomWindow = Window.ofAnchor(context, _anchorKey6,
+                            _buildToastImpl(context, text: "Text")
+                            , showPos: RelativePosition.LEFT);
+                      }
+                      _anchorBottomWindow.toggleShow(context);
+                    })
+            ),
+            Container(
+                color: Colors.yellowAccent,
+                margin: EdgeInsets.fromLTRB(20, 0, 50, 0),
                 child: ListTile(
                     key: _anchorKey,
                     title: Text("Anchor window-bottom"),
                     onTap: () {
                       if(_anchorBottomWindow == null){
-                        _anchorBottomWindow = Window.ofAnchor(context, _anchorKey,
-                            _buildToastImpl(context));
+                        _anchorBottomWindow = Window.ofAnchor(context, _anchorKey, _buildToastImpl(context));
                       }
                       _anchorBottomWindow.toggleShow(context);
                     })
+            ),
+            Container(
+                color: Colors.yellowAccent,
+                margin: EdgeInsets.fromLTRB(50, 0, 20, 0),
+                child: ListTile(
+                    key: _anchorKey2,
+                    title: Text("Anchor window-bottom2"),
+                    onTap: () {
+                      if(_anchorBottomWindow == null){
+                        _anchorBottomWindow = Window.ofAnchor(context, _anchorKey2, _buildToastImpl(context));
+                      }
+                      _anchorBottomWindow.toggleShow(context);
+                    })
+            ),
+            Container(
+                color: Colors.pinkAccent,
+                margin: EdgeInsets.fromLTRB(50, 0, 20, 0),
+                child: ListTile(
+                    key: _anchorKey3,
+                    title: Text("Anchor window-top"),
+                    onTap: () {
+                      if(_anchorBottomWindow == null){
+                        _anchorBottomWindow = Window.ofAnchor(context, _anchorKey3, _buildToastImpl(context)
+                              , showPos: RelativePosition.TOP);
+                      }
+                      _anchorBottomWindow.toggleShow(context);
+                    })
+            ),
+            Container(
+                color: Colors.pinkAccent,
+                margin: EdgeInsets.fromLTRB(20, 0, 50, 0),
+                child: ListTile(
+                    key: _anchorKey4,
+                    title: Text("Anchor window-top"),
+                    onTap: () {
+                      if(_anchorBottomWindow == null){
+                        _anchorBottomWindow = Window.ofAnchor(context, _anchorKey4, _buildToastImpl(context)
+                            , showPos: RelativePosition.TOP);
+                      }
+                      _anchorBottomWindow.toggleShow(context);
+                    })
+            ),
+            Container(
+                color: Colors.blue,
+                margin: EdgeInsets.fromLTRB(100, 0, 100, 0),
+                child: ListTile(
+                    key: _anchorKey5,
+                    title: Text("Anchor window-left"),
+                    onTap: () {
+                      if(_anchorBottomWindow == null){
+                        _anchorBottomWindow = Window.ofAnchor(context, _anchorKey5,
+                            _buildToastImpl(context, text: "Text")
+                            , showPos: RelativePosition.LEFT);
+                      }
+                      _anchorBottomWindow.toggleShow(context);
+                    })
+            ),
+            Container(
+                color: Colors.deepOrangeAccent,
+                margin: EdgeInsets.fromLTRB(100, 0, 100, 0),
+                child: ListTile(
+                    key: _anchorKey7,
+                    title: Text("Anchor window-right"),
+                    onTap: () {
+                      if(_anchorBottomWindow == null){
+                        _anchorBottomWindow = Window.ofAnchor(context, _anchorKey7,
+                            _buildToastImpl(context, text: "Text")
+                            , showPos: RelativePosition.RIGHT);
+                      }
+                      _anchorBottomWindow.toggleShow(context);
+                    })
+            ),
+            Container(
+              color: Colors.purple,
+              padding: EdgeInsets.fromLTRB(100, 0, 100, 0),
+              child:  ListTile(title: Text("Dispose all window"),
+                  onTap: () {
+                    _disposeAllWindow();
+                  }),
             )
           ],
         ),
@@ -133,6 +247,18 @@ class _HomeState extends State<HomeDemo> with TickerProviderStateMixin  {
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+  void _disposeAllWindow(){
+     if(_anchorBottomWindow != null){
+       _anchorBottomWindow.dispose();
+       _anchorBottomWindow = null;
+     }
+     if(_toastWindow != null){
+       _toastWindow.dismiss();
+     }
+     if(_loadingWindow != null){
+       _loadingWindow.dismiss();
+     }
   }
 
   Widget _buildToastWidget(BuildContext context) {
@@ -156,14 +282,15 @@ Widget _buildLoadingWidget(BuildContext context) {
    );
 }
 
-Widget _buildToastImpl(BuildContext context) {
+Widget _buildToastImpl(BuildContext context,{text}) {
+  text ??="test show toast by BaseWindow";
   return Center(
     child: Card(
       color: Colors.black,
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Text(
-          "test show toast by BaseWindow",
+          text,
           style: TextStyle(
             fontSize: 14,
             color: Colors.white,

@@ -233,6 +233,7 @@ class Window {
       }){
    // BaseWindow bw = baseWindow(context);
     RenderBox renderBox = anchor.currentContext.findRenderObject();
+    print("paintBounds: ${renderBox.paintBounds}");
     Offset topOffset = renderBox.localToGlobal(Offset.zero);
     Offset bottomOffset = renderBox.localToGlobal(Offset(renderBox.size.width, renderBox.size.height));
     double left = topOffset.dx;
@@ -253,24 +254,26 @@ class Window {
       case RelativePosition.BOTTOM:
         rTopPos = bottom + offsetY;
         //make widget align center by anchor
-        if(left > rightSpace){
+        if(left >= rightSpace){
           rLeftPos = (left - rightSpace) ;
 
           realChild = Positioned(
             top: rTopPos,
             left: rLeftPos,
             child: Container(
+                width: screenSize.width - rLeftPos,
                 alignment: Alignment.topCenter,
                 child: child),
           );
         }else{
-          rRightPos = right + left;
-          //TODO bug .wait fix
-          print("rRightPos = $rRightPos");
+          rRightPos = screenSize.width - (right + left);
+         // print("rRightPos = $rRightPos");
           realChild = Positioned(
             top: rTopPos,
+            //Note: right position is not the absolute position of screen just the relative pos
             right: rRightPos,
             child: Container(
+                width: screenSize.width - rRightPos,
                 alignment: Alignment.topCenter,
                 child: child),
           );
@@ -279,44 +282,78 @@ class Window {
 
       case RelativePosition.TOP:
         align = Alignment.bottomCenter;
-        rBottomPos = top - offsetY;
-        rLeftPos = left > rightSpace ? (left - rightSpace) : 0 ;
-
-        realChild = Positioned(
-          bottom: rBottomPos,
-          left: rLeftPos,
-          child: Container(
-              alignment: align,
-              child: child),
-        );
+        rBottomPos = screenSize.height - top - offsetY;
+        if(left >= rightSpace){
+          rLeftPos = (left - rightSpace);
+          realChild = Positioned(
+            bottom: rBottomPos,
+            left: rLeftPos,
+            child: Container(
+                width: screenSize.width - rLeftPos,
+                alignment: align,
+                child: child),
+          );
+        }else{
+          rRightPos = screenSize.width - (right + left);
+          realChild = Positioned(
+            bottom: rBottomPos,
+            right: rRightPos,
+            child: Container(
+                width: screenSize.width - rRightPos,
+                alignment: align,
+                child: child),
+          );
+        }
         break;
 
       case RelativePosition.LEFT:
-        rRightPos = left - offsetX;
-        rTopPos = top > bottomSpace ? top - bottomSpace : 0;
-        align = Alignment.centerRight;
-
-        realChild = Positioned(
-          right: rRightPos,
-          top: rTopPos,
-          child: Container(
-              alignment: align,
+        rRightPos = screenSize.width - left + offsetX;
+        if(top >= bottomSpace){
+          rTopPos = top - bottomSpace;
+          realChild = Positioned(
+            right: rRightPos,
+            top: rTopPos,
+            child: Container(
+              height: screenSize.height - rTopPos,
+              alignment: Alignment.centerRight,
               child: child),
-        );
+          );
+        }else{
+          rBottomPos = screenSize.height - (bottom + top);
+          realChild = Positioned(
+            right: rRightPos,
+            bottom: rBottomPos,
+            child: Container(
+                height: screenSize.height - rBottomPos,
+                alignment: Alignment.centerRight,
+                child: child),
+          );
+        }
         break;
 
       case RelativePosition.RIGHT:
         rLeftPos = right + offsetX;
-        rTopPos = top > bottomSpace ? top - bottomSpace : 0;
-        align = Alignment.centerLeft;
-
-        realChild = Positioned(
-          left: rLeftPos,
-          top: rTopPos,
-          child: Container(
-              alignment: align,
+        if(top >= bottomSpace){
+          rTopPos = top - bottomSpace;
+          realChild = Positioned(
+            left: rLeftPos,
+            top: rTopPos,
+            child: Container(
+                height: screenSize.height - rTopPos,
+                alignment: Alignment.centerLeft,
+                child: child),
+          );
+        }else{
+          rBottomPos = screenSize.height - (bottom + top);
+          realChild = Positioned(
+            left: rLeftPos,
+            bottom: rBottomPos,
+            child: Container(
+              height: screenSize.height - rBottomPos,
+              alignment: Alignment.centerLeft,
               child: child),
-        );
+          );
+        }
         break;
 
       default:
