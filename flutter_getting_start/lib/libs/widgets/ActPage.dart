@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_getting_start/libs/network/network.dart';
-
 import 'package:flutter_getting_start/libs/toast.dart';
 import 'package:flutter_getting_start/libs/widgets/PullToRefresh_demo.dart';
 import 'package:flutter_getting_start/libs/widgets/row_expaned_demo.dart';
 import 'package:flutter_getting_start/main.dart';
 
-import '../UserInfo.dart';
 import 'base_window_demos.dart';
 
 void main() {
@@ -170,7 +168,7 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
               children: <Widget>[
                 new ListTile(
                   leading: new Icon(Icons.map),
-                  title: new Text('Map'),
+                  title: new Text('LinearLayout-Row(Column)'),
                   onTap: (){
                     Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
                       return new RowExpandedDemo();

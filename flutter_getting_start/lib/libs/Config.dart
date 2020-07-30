@@ -11,19 +11,19 @@ class Config{
   static final DeviceInfoPlugin _deviceInfoPlugin = DeviceInfoPlugin();
   static const bool DEBUG = !kReleaseMode;
 
-  static Map<String, dynamic> _cached_common_headers;
+  static Map<String, dynamic> _cachedCommonHeaders;
 
-  static Future<Map<String, dynamic>> get common_headers async =>
-      _cached_common_headers ??= await initPlatformState();
+  static Future<Map<String, dynamic>> get commonHeaders async =>
+      _cachedCommonHeaders ??= await initPlatformState();
 
   static void putHeader(String key, dynamic val){
-    _cached_common_headers.putIfAbsent(key, () => val);
+    _cachedCommonHeaders.putIfAbsent(key, () => val);
   }
   static void removeHeader(String key){
-    _cached_common_headers.remove(key);
+    _cachedCommonHeaders.remove(key);
   }
   static void setHeadersFromJson(String json){
-    _cached_common_headers.addAll(jsonDecode(json));
+    _cachedCommonHeaders.addAll(jsonDecode(json));
   }
 
   static Future<Map<String, dynamic>> initPlatformState() async {

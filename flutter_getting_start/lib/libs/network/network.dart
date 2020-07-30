@@ -1,13 +1,10 @@
-import 'dart:collection';
-import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_getting_start/libs/network/HttpResult.dart';
 import 'package:flutter_getting_start/libs/server_config.dart';
-import 'package:quiver/collection.dart';
-import 'package:connectivity/connectivity.dart';
 
 import '../Config.dart';
 
@@ -138,7 +135,7 @@ class NetworkComponent{
     if (connectivityResult == ConnectivityResult.none) {
       return new ResultData(null, Code.NETWORK_ERROR);
     }
-    option.headers = await Config.common_headers;
+    option.headers = await Config.commonHeaders;
     if(extraHeaders != null){
       option.headers.addAll(extraHeaders);
     }

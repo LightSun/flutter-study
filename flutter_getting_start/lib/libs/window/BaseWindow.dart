@@ -27,7 +27,7 @@ class BaseWindow {
   final DismissDelegate _dismissDelegate;
   bool _pending = false;
 
-  WorkMode _mode;
+  final WorkMode _mode;
   _PendingAction _pendingAction;
 
   OverlayEntry get overlayEntry => _overlayEntry;
@@ -183,21 +183,27 @@ enum RelativePosition{
 
 class Window {
   final WindowCreator _creator;
-
-  Window(this._creator);
-
   BaseWindow _window;
+
+  /// create window by creator
+  Window(this._creator);
 
   BaseWindow baseWindow(BuildContext context) => _window ??= _creator.call(context);
 
+  /// show the window
+  /// * context: the context
+  /// * showTimeMsec: display time mill-second for auto dismiss
+  /// * below: the below [OverlayEntry]
+  /// * above: the above [OverlayEntry]
   void show(BuildContext context,
       {int showTimeMsec = -1, OverlayEntry below,
       OverlayEntry above}) {
     baseWindow(context).show(showTimeMsec: showTimeMsec, below: below, above: above);
   }
-
+  /// indicate the window is shown or not
   bool isShown() => _window != null && _window.isShown();
 
+  /// dispose the window
   void dispose() {
     if (_window != null) {
       _window.dispose();
@@ -205,6 +211,7 @@ class Window {
     }
   }
 
+  /// dismiss the window, but not dispose.
   void dismiss({bool useDelegate = true}) {
     if (_window != null) {
       _window.dismiss(useDelegate: useDelegate);
@@ -222,27 +229,37 @@ class Window {
     }
   }
 
+  /// create window by child and anchor.
+  /// * context: the context
+  /// * anchor: the anchor key
+  /// * child: the child expect to display
+  /// * showPos: The relative position of the child relative to anchor
+  /// * offsetX: the x offset. which used for 'showPos = LEFT' or 'showPos = RIGHT'
+  /// * offsetY: the y offset. which used for 'showPos = TOP' or 'showPos = BOTTOM'
+  /// * mode: work mode for if window already display
+  /// * showCallback: show callback . can used for appear animation
+  /// * dismissDelegate: dismiss delegate. can used for disappear animation
   factory Window.ofAnchor(BuildContext context, GlobalKey anchor, Widget child,
       { RelativePosition showPos = RelativePosition.BOTTOM,
-        double offsetX = 0.0, //distance
-        double offsetY = 0.0, //distance
+        double offsetX = 0.0, //offset distance. only effect- LEFT-RIGHT
+        double offsetY = 0.0, //offset distance.
 
         WorkMode mode = WorkMode.DISMISS_BEFORE,
         showCallback,
         dismissDelegate
       }){
-   // BaseWindow bw = baseWindow(context);
     RenderBox renderBox = anchor.currentContext.findRenderObject();
-    print("paintBounds: ${renderBox.paintBounds}");
+    //print("paintBounds: ${renderBox.paintBounds}"); // margin also contains
     Offset topOffset = renderBox.localToGlobal(Offset.zero);
     Offset bottomOffset = renderBox.localToGlobal(Offset(renderBox.size.width, renderBox.size.height));
     double left = topOffset.dx;
     double top = topOffset.dy;
     double bottom = bottomOffset.dy;
     double right = bottomOffset.dx;
-    print("left = $left, top =$top, right = $right, bottom = $bottom");
+    //print("left = $left, top =$top, right = $right, bottom = $bottom");
     //compute the best left.
     Size screenSize = MediaQuery.of(context).size;
+    //left-space
     double rightSpace = screenSize.width - right;
     double bottomSpace = screenSize.height - bottom;
 
