@@ -127,7 +127,8 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
         } else if (index == 1) {
           //network
           print("start test Get");
-          NetworkComponent().get("http://www.baidu.com", {}).then((value) =>
+          String url = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1090085674,2695501467&fm=26&gp=0.jpg";
+          NetworkComponent().getStream(url, {}).then((value) =>
           {
           });
         }else if (index == 2) {

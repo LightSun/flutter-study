@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_getting_start/libs/network/HttpResult.dart';
 import 'package:flutter_getting_start/libs/server_config.dart';
 
@@ -75,8 +77,15 @@ class NetworkComponent{
     this.data = data;
   }
 
-  Future<ResultData> get(String path, Map<String, dynamic> params, {Map<String, dynamic> extraHeaders}) async {
+  Future<ResultData> getStream(String path, Map<String, dynamic> params, {Map<String, dynamic> extraHeaders}) async {
+    return get(path, params, extraHeaders: extraHeaders,asStream: true);
+  }
+
+  Future<ResultData> get(String path, Map<String, dynamic> params, {bool asStream = false , Map<String, dynamic> extraHeaders}) async {
     Options ops = options.merge(method: "GET");
+    if(asStream){
+      ops.responseType = ResponseType.STREAM;
+    }
     return _request(path, params, ops,
         extraHeaders: extraHeaders
     );
@@ -91,18 +100,17 @@ class NetworkComponent{
   Future<ResultData> postBody(String path, Map<String, dynamic> params, {Map<String, dynamic> extraHeaders}) async {
   //  "Content-Type: application/json", "Accept: application/json"
     Options ops = options.merge(method: "POST", contentType: ContentType.json);
-    return _request(path, params, ops,
-        extraHeaders: extraHeaders); //jsonEncode(params)
+    return _request(path, params, ops, extraHeaders: extraHeaders); //jsonEncode(params)
   }
 
   Future<ResultData> delete(url, Map<String, dynamic> params, {Map<String, dynamic> extraHeaders}) async{
-    return _request(url, params, new Options(method: 'DELETE'),
-        extraHeaders: extraHeaders);
+    Options ops = options.merge(method: "DELETE", contentType: ContentType.json);
+    return _request(url, params, ops, extraHeaders: extraHeaders);
   }
 
   Future<ResultData> put(url, Map<String, dynamic> params, {Map<String, dynamic> extraHeaders}) async{
-    return _request(url, params, new Options(method: "PUT", contentType: ContentType.text),
-      extraHeaders: extraHeaders);
+    Options ops = options.merge(method: "PUT", contentType: ContentType.json);
+    return _request(url, params, ops, extraHeaders: extraHeaders);
   }
 
   String _param2String(Map<String, dynamic> params){
@@ -198,8 +206,16 @@ class NetworkComponent{
     return new ResultData(null, Code.UNKNOWN_RESPONSE, headers: response.headers);
   }
 
-  ResultData _processSuccess(Response res){
+  Future<ResultData> _processSuccess(Response res) async{
+   // print("res.data.runtimeType: ${res.data.runtimeType}");
+   // print("res.data.runtimeType: ${res.data is HttpClientResponse}");
+    //when response as stream
+    if(res.data is HttpClientResponse){
+      final Uint8List bytes = await consolidateHttpClientResponseBytes(res.data as HttpClientResponse);
+      return new ResultData(bytes, Code.SUCCESS);
+    }
     if(data != null){
+      //todo handle data is byte[].
       HttpBaseResult result =  HttpBaseResult();
       result.fromJson(res.data);
       if(ServerConfig.SUCCESS_CODES.contains(result.code)){
