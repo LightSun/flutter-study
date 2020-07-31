@@ -18,7 +18,9 @@ class ResultData {
   ResultData(this.data, this.code, {this.headers});
 
   bool isSuccess() => code == Code.SUCCESS;
+
   String getErrorMsg() => data;
+
   String getCodeString() => Code.code2Str(code);
 }
 
@@ -26,15 +28,15 @@ class ResultData {
 class Code {
   static const NETWORK_ERROR = -1;
   static const NETWORK_TIMEOUT = -2;
-  static const INVALID_TOKEN  = -3;
-  static const UNKNOWN_CODE  = -4;
-  static const EXCEPTION  = -5;
-  static const UNKNOWN_RESPONSE  = -6;
+  static const INVALID_TOKEN = -3;
+  static const UNKNOWN_CODE = -4;
+  static const EXCEPTION = -5;
+  static const UNKNOWN_RESPONSE = -6;
 
   static const SUCCESS = 200;
 
-  static String code2Str(int code){
-    switch(code){
+  static String code2Str(int code) {
+    switch (code) {
       case NETWORK_ERROR:
         return "NETWORK_ERROR";
       case NETWORK_TIMEOUT:
@@ -56,71 +58,97 @@ class Code {
   }
 }
 
-class NetworkComponent{
-
+class NetworkComponent {
   static Options _options;
   static Dio _dio;
 
   static Dio get dio => _dio ??= new Dio();
-  static Options get options =>
-      _options ??= new Options(
+
+  static Options get options => _options ??= new Options(
         baseUrl: ServerConfig.BASE_URL,
         //headers: Config.common_headers,
         connectTimeout: 40000,
         receiveTimeout: 40000,
-        followRedirects: true,);
+        followRedirects: true,
+      );
 
   ///the data from json.
   dynamic data;
 
-  NetworkComponent({data}){
+  NetworkComponent({data}) {
     this.data = data;
   }
 
-  Future<ResultData> getStream(String path, Map<String, dynamic> params, {Map<String, dynamic> extraHeaders}) async {
-    return get(path, params, extraHeaders: extraHeaders,asStream: true);
+  Future<ResultData> getStream(String path, Map<String, dynamic> params,
+      {Map<String, dynamic> extraHeaders}) async {
+    return get(path, params, extraHeaders: extraHeaders, asStream: true);
   }
 
-  Future<ResultData> get(String path, Map<String, dynamic> params, {bool asStream = false , Map<String, dynamic> extraHeaders}) async {
+  Future<ResultData> get(String path, Map<String, dynamic> params,
+      {bool asStream = false,
+      ResponseType responseType,
+      Map<String, dynamic> extraHeaders}) async {
     Options ops = options.merge(method: "GET");
-    if(asStream){
-      ops.responseType = ResponseType.STREAM;
-    }
     return _request(path, params, ops,
-        extraHeaders: extraHeaders
-    );
+        extraHeaders: extraHeaders,
+        asStream: asStream,
+        responseType: responseType);
   }
-  Future<ResultData> post(String path, Map<String, dynamic> params, {Map<String, dynamic> extraHeaders}) async {
+
+  Future<ResultData> post(String path, Map<String, dynamic> params,
+      {bool asStream = false,
+      ResponseType responseType,
+      Map<String, dynamic> extraHeaders}) async {
     Options ops = options.merge(method: "POST", contentType: ContentType.text);
     return _request(path, _param2String(params), ops,
-        extraHeaders: extraHeaders
-    );
+        extraHeaders: extraHeaders,
+        asStream: asStream,
+        responseType: responseType);
   }
 
-  Future<ResultData> postBody(String path, Map<String, dynamic> params, {Map<String, dynamic> extraHeaders}) async {
-  //  "Content-Type: application/json", "Accept: application/json"
+  Future<ResultData> postBody(String path, Map<String, dynamic> params,
+      {bool asStream = false,
+      ResponseType responseType,
+      Map<String, dynamic> extraHeaders}) async {
+    //  "Content-Type: application/json", "Accept: application/json"
     Options ops = options.merge(method: "POST", contentType: ContentType.json);
-    return _request(path, params, ops, extraHeaders: extraHeaders); //jsonEncode(params)
+    return _request(path, params, ops,
+        extraHeaders: extraHeaders,
+        asStream: asStream,
+        responseType: responseType); //jsonEncode(params)
   }
 
-  Future<ResultData> delete(url, Map<String, dynamic> params, {Map<String, dynamic> extraHeaders}) async{
-    Options ops = options.merge(method: "DELETE", contentType: ContentType.json);
-    return _request(url, params, ops, extraHeaders: extraHeaders);
+  Future<ResultData> delete(url, Map<String, dynamic> params,
+      {bool asStream = false,
+      ResponseType responseType,
+      Map<String, dynamic> extraHeaders}) async {
+    Options ops =
+        options.merge(method: "DELETE", contentType: ContentType.json);
+    return _request(url, params, ops,
+        extraHeaders: extraHeaders,
+        asStream: asStream,
+        responseType: responseType);
   }
 
-  Future<ResultData> put(url, Map<String, dynamic> params, {Map<String, dynamic> extraHeaders}) async{
+  Future<ResultData> put(url, Map<String, dynamic> params,
+      {bool asStream = false,
+      ResponseType responseType,
+      Map<String, dynamic> extraHeaders}) async {
     Options ops = options.merge(method: "PUT", contentType: ContentType.json);
-    return _request(url, params, ops, extraHeaders: extraHeaders);
+    return _request(url, params, ops,
+        extraHeaders: extraHeaders,
+        asStream: asStream,
+        responseType: responseType);
   }
 
-  String _param2String(Map<String, dynamic> params){
+  String _param2String(Map<String, dynamic> params) {
     StringBuffer sb = StringBuffer();
-    if(params != null){
+    if (params != null) {
       bool first = true;
       params.forEach((key, value) {
-        if(!first){
+        if (!first) {
           sb.write("&");
-        }else{
+        } else {
           first = false;
         }
         sb.write(key);
@@ -136,15 +164,22 @@ class NetworkComponent{
   ///[ params] 请求参数
   ///[ header] 外加头
   ///[ option] 配置
-  Future<ResultData> _request(String url, dynamic params, Options option, {Map<String, dynamic> extraHeaders}) async {
-
-    //没有网络
+  Future<ResultData> _request(String url, dynamic params, Options option,
+      {bool asStream = false,
+      ResponseType responseType,
+      Map<String, dynamic> extraHeaders}) async {
+    if (asStream) {
+      option.responseType = ResponseType.STREAM;
+    } else if (responseType != null) {
+      option.responseType = responseType;
+    }
+    //no network
     var connectivityResult = await (new Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       return new ResultData(null, Code.NETWORK_ERROR);
     }
     option.headers = await Config.commonHeaders;
-    if(extraHeaders != null){
+    if (extraHeaders != null) {
       option.headers.addAll(extraHeaders);
     }
 
@@ -153,16 +188,16 @@ class NetworkComponent{
       print("\n================== 请求数据 ==========================");
       print("req url = $url");
       print("req headers = ${option.headers}");
-      print("req params = ${params??params.toString()??""}");
+      print("req params = ${params ?? params.toString() ?? ""}");
 
-      dio.interceptor.response.onSuccess = (Response e){
+      dio.interceptor.response.onSuccess = (Response e) {
         print("\n================== 响应数据 ==========================");
         print("res code = ${e.statusCode}");
         print("res data = ${e.data}");
         print("\n");
         return e;
       };
-      dio.interceptor.response.onError = (DioError e){
+      dio.interceptor.response.onError = (DioError e) {
         print("\n================== 错误响应数据 ======================");
         print("error type = ${e.type}");
         print("error message = ${e.message}");
@@ -183,16 +218,19 @@ class NetworkComponent{
     try {
       response = await dio.request(url, data: params, options: option);
     } on DioError catch (e) {
-      int code = e.type == DioErrorType.CONNECT_TIMEOUT ? Code.NETWORK_TIMEOUT : Code.EXCEPTION;
+      int code = e.type == DioErrorType.CONNECT_TIMEOUT
+          ? Code.NETWORK_TIMEOUT
+          : Code.EXCEPTION;
       if (Config.DEBUG) {
-        print('请求异常: ' + e.toString());
-        print('请求异常 url: ' + url);
+        print('req exception: ' + e.toString());
+        print('req exception url: ' + url);
       }
       return new ResultData(e.toString(), code);
     }
 
     try {
-      if (option.contentType != null && option.contentType.primaryType == "text") {
+      if (option.contentType != null &&
+          option.contentType.primaryType == "text") {
         return _processSuccess(response);
       }
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -200,35 +238,37 @@ class NetworkComponent{
       }
     } catch (e) {
       print(e.toString() + url);
-      return new ResultData(response.data, Code.EXCEPTION, headers: response.headers);
+      return new ResultData(response.data, Code.EXCEPTION,
+          headers: response.headers);
     }
     print("unknown: response.stateCode = ${response.statusCode}");
-    return new ResultData(null, Code.UNKNOWN_RESPONSE, headers: response.headers);
+    return new ResultData(null, Code.UNKNOWN_RESPONSE,
+        headers: response.headers);
   }
 
-  Future<ResultData> _processSuccess(Response res) async{
-   // print("res.data.runtimeType: ${res.data.runtimeType}");
-   // print("res.data.runtimeType: ${res.data is HttpClientResponse}");
+  Future<ResultData> _processSuccess(Response res) async {
+    // print("res.data.runtimeType: ${res.data.runtimeType}");
+    // print("res.data.runtimeType: ${res.data is HttpClientResponse}");
     //when response as stream
-    if(res.data is HttpClientResponse){
-      final Uint8List bytes = await consolidateHttpClientResponseBytes(res.data as HttpClientResponse);
+    if (res.data is HttpClientResponse) {
+      final Uint8List bytes = await consolidateHttpClientResponseBytes(
+          res.data as HttpClientResponse);
       return new ResultData(bytes, Code.SUCCESS);
     }
-    if(data != null){
-      //todo handle data is byte[].
-      HttpBaseResult result =  HttpBaseResult();
+    if (data != null) {
+      HttpBaseResult result = HttpBaseResult();
       result.fromJson(res.data);
-      if(ServerConfig.SUCCESS_CODES.contains(result.code)){
+      if (ServerConfig.SUCCESS_CODES.contains(result.code)) {
         //string -> direct return
-        if(data is String){
-           return new ResultData(result.data, Code.SUCCESS);
+        if (data is String) {
+          return new ResultData(result.data, Code.SUCCESS);
         }
         HttpResult hr = HttpResult(data);
         hr.fromJson(res.data);
         return new ResultData(hr.data, Code.SUCCESS);
-      }else if(ServerConfig.INVALID_TOKEN_CODES.contains(result.code)){
+      } else if (ServerConfig.INVALID_TOKEN_CODES.contains(result.code)) {
         return new ResultData(result.msg, Code.INVALID_TOKEN);
-      }else{
+      } else {
         print("unknown: code = ${result.code}");
         return new ResultData(result.msg, Code.UNKNOWN_CODE);
       }
@@ -236,4 +276,3 @@ class NetworkComponent{
     return new ResultData(res.data, Code.SUCCESS, headers: res.headers);
   }
 }
-
