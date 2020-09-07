@@ -50,11 +50,26 @@ class HttpRequestContext{
 
  HttpRequestContext(this.url, this.type, this.dataType);
 }
+abstract class ListDataOwner{
+  List getList();
+}
 
-abstract class ListCallback{
-   bool handleRefresh();
-   List map(List data);
-   List getListData(Object data);
+class ListCallback{
+   bool handleRefresh(){
+     return false;
+   }
+   List map(List data){
+     return data;
+   }
+   List getListData(Object data){
+     if(data is List){
+       return data;
+     }
+     if(data is ListDataOwner){
+        return data.getList();
+     }
+     throw new Exception("data should impl ListDataOwner");
+   }
 }
 abstract class UiCallback{
 

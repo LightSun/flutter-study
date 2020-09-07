@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_getting_start/libs/network/network.dart';
 import 'package:flutter_getting_start/libs/toast.dart';
+import 'package:flutter_getting_start/libs/widgets/PullToRefresh_api.dart';
 import 'package:flutter_getting_start/libs/widgets/PullToRefresh_demo.dart';
 import 'package:flutter_getting_start/libs/widgets/row_expaned_demo.dart';
 import 'package:flutter_getting_start/main.dart';
@@ -149,7 +150,8 @@ class ActState extends State<ActPage> with SingleTickerProviderStateMixin {
         }else if(index == 3){
           print("start PullToRrFreshApp");
           Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
-            return new PullToRrFreshApp();
+            //return new PullToRrFreshApp();
+            return new PullToRrFreshApi();
           }));
         }else if(index == 4){
           print("start BaseWindow");

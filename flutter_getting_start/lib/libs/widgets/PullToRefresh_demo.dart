@@ -196,10 +196,6 @@ class _State extends State<PullToRefresh> {
     });
   }
 
-  void _setShowLoading(bool show){
-     //TODO handle loading
-  }
-
   Widget _buildEmptyWidget2(BuildContext context) {
     return ListView(
         children: <Widget>[
